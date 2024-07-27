@@ -9,7 +9,11 @@ afterAll(async () => {
 });
 
 test("typescript invalid module", async () => {
-  const result = await runSlsCommand(__dirname);
+  expect.assertions(1);
 
-  expect(result).toContain("CommonJS, ES3, or ES5 are not supported");
+  try {
+    await runSlsCommand(__dirname);
+  } catch (err) {
+    expect(err.stdout).toContain("CommonJS, ES3, or ES5 are not supported");
+  }
 });

@@ -8,7 +8,7 @@ const importFresh = require("import-fresh");
 const ESLintPlugin = require("eslint-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const { ESBuildMinifyPlugin } = require("esbuild-loader");
+const { EsbuildPlugin } = require("esbuild-loader");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const PermissionsOutputPlugin = require("webpack-permissions-plugin");
@@ -284,7 +284,7 @@ function plugins() {
         generateStatsFile: true,
         statsFilename: "bundle_stats.json",
         reportFilename: "bundle_stats.html",
-      })
+      }),
     );
   }
 
@@ -296,16 +296,6 @@ function plugins() {
       },
     };
 
-    if (ENABLE_LINTING) {
-      if (parsedTsConfig.exclude) {
-        tsEslintConfig.ignorePatterns = parsedTsConfig.exclude;
-      }
-      forkTsCheckerWebpackOptions.eslint = {
-        files: path.join(servicePath, "**/*.ts"),
-        options: { cwd: servicePath, baseConfig: tsEslintConfig },
-      };
-    }
-
     plugins.push(new ForkTsCheckerWebpackPlugin(forkTsCheckerWebpackOptions));
   }
 
@@ -315,7 +305,7 @@ function plugins() {
         context: servicePath,
         baseConfig: jsEslintConfig,
         extensions: "js",
-      })
+      }),
     );
 
     // If the ForkTsChecker is disabled, then let Eslint do the linting
@@ -325,7 +315,7 @@ function plugins() {
           context: servicePath,
           baseConfig: tsEslintConfig,
           extensions: ["ts"],
-        })
+        }),
       );
     }
   }
@@ -340,7 +330,7 @@ function plugins() {
             from: path.join(servicePath, data.from),
           };
         }),
-      })
+      }),
     );
 
     // Copy file permissions
@@ -378,7 +368,7 @@ function plugins() {
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment$/,
-    })
+    }),
   );
 
   // Ignore any packages specified in the `ignorePackages` option
@@ -386,7 +376,7 @@ function plugins() {
     plugins.push(
       new webpack.IgnorePlugin({
         resourceRegExp: new RegExp("^" + ignorePackages[i] + "$"),
-      })
+      }),
     );
   }
 
@@ -405,7 +395,7 @@ function resolvePlugins() {
       new TsconfigPathsPlugin({
         configFile: tsConfigPath,
         extensions: extensions,
-      })
+      }),
     );
   }
 
@@ -460,7 +450,7 @@ module.exports = {
     : {
         nodeEnv: false,
         minimizer: [
-          new ESBuildMinifyPlugin({
+          new EsbuildPlugin({
             target: esbuildNodeVersion,
             ...minifyOptions,
           }),
